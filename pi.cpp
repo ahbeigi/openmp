@@ -1,1 +1,0 @@
-/home/ali/DevStudioProjects/opemmp1/pi.cpp
