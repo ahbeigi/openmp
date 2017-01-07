@@ -14,17 +14,18 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <omp.h>
+#include "headers.h"
 
 using namespace std;
 
 /*
- * Using atomic section to get rid of array for gathering temporary results
+ * Parallel version of calculating the pi.
  */
-int main(int argc, char** argv) {
+int pi_par(int argc, char** argv) {
     double num_steps = 1000000;
     long double step = 1.0/num_steps;
     int numt = 4;
-    double pi = 0;
+    double pi = 0, tmp_pi[numt];
     omp_set_num_threads(numt);
     int chunk = num_steps/numt;
     printf("chunk = %d, numt = %d, step = %f\n", chunk, numt, step);
@@ -41,11 +42,12 @@ int main(int argc, char** argv) {
             //printf("[Tread %d] i = %d, x = %f, local_sum = %f\n", id, i, x, local_sum);
         }
         //printf("[Thread %d] local_sum = %f, \n", id, local_sum);
-	#pragma omp critical
-        	pi +=  local_sum*step;
+        tmp_pi[id] =  local_sum*step;
     }
-    printf("Parallel section took %f miliseconds\n", (omp_get_wtime() - stime)*1000);
-    printf("pi = %f\n", pi);
+    printf("Parallel section consumed time in milisecond: %f\n", (omp_get_wtime() - stime)*1000);
+    for(int j=0;j<numt;j++)
+	    pi += tmp_pi[j];
+    printf("pi = %f", pi);
     return 0;
 }
 

@@ -5,7 +5,7 @@
  */
 
 /* 
- * File:   main.cpp
+ * File:   pi_par_synced.cpp
  * Author: ali
  *
  * Created on January 4, 2017, 6:41 PM
@@ -14,17 +14,18 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <omp.h>
+#include "headers.h"
 
 using namespace std;
 
 /*
- * Parallel version of calculating the pi.
+ * Using atomic section to get rid of array for gathering temporary results
  */
-int main(int argc, char** argv) {
+int pi_par_synced(int argc, char** argv) {
     double num_steps = 1000000;
     long double step = 1.0/num_steps;
     int numt = 4;
-    double pi = 0, tmp_pi[numt];
+    double pi = 0;
     omp_set_num_threads(numt);
     int chunk = num_steps/numt;
     printf("chunk = %d, numt = %d, step = %f\n", chunk, numt, step);
@@ -41,12 +42,11 @@ int main(int argc, char** argv) {
             //printf("[Tread %d] i = %d, x = %f, local_sum = %f\n", id, i, x, local_sum);
         }
         //printf("[Thread %d] local_sum = %f, \n", id, local_sum);
-        tmp_pi[id] =  local_sum*step;
+	#pragma omp critical
+        	pi +=  local_sum*step;
     }
-    printf("Parallel section consumed time in milisecond: %f\n", (omp_get_wtime() - stime)*1000);
-    for(int j=0;j<numt;j++)
-	    pi += tmp_pi[j];
-    printf("pi = %f", pi);
+    printf("Parallel section took %f miliseconds\n", (omp_get_wtime() - stime)*1000);
+    printf("pi = %f\n", pi);
     return 0;
 }
 
