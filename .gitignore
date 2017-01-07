@@ -1,1 +1,8 @@
 *.o
+proj_pi/.dep.inc
+proj_pi/.make.state.Debug
+proj_pi/Makefile
+proj_pi/dist/
+proj_pi/nbproject/
+tmp.c
+
